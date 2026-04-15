@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Combien pouvez-vous vraiment emprunter en 2026 ? — Jean Finance by Pretto</title>
+    
+    <meta property="og:title" content="Combien pouvez-vous emprunter en 2026 ? Simulation gratuite">
+    <meta property="og:description" content="Estimation fiable en 30 secondes. Jean-Philippe vous rappelle sous 24h.">
+    
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin:0; padding:0; }
+        body { font-family: 'DM Sans', sans-serif; background: #f8f5eb; color: #1e2d40; }
+        .hero { min-height:100vh; display:grid; grid-template-columns:1fr 1fr; }
+        .hero-left { 
+            background: linear-gradient(135deg, #1a2d42, #2c4663); 
+            color:white; 
+            padding:3rem 4rem; 
+            display:flex; 
+            flex-direction:column; 
+            justify-content:center; 
+        }
+        .hero-right { background:white; padding:3rem 4rem; }
+        
+        h1 { font-size: 2.35rem; line-height: 1.15; margin-bottom: 1.2rem; color: white; }
+        em { color:#c9a96e; font-style:italic; }
+        .tag { color:#c9a96e; font-weight:600; letter-spacing:1px; margin-bottom:10px; }
+        
+        label { display:block; margin:18px 0 6px; font-weight:500; color: #2c4663; }
+        input[type="range"] { width:100%; accent-color:#c9a96e; }
+        .value { font-size:1.25rem; font-weight:600; color:#1a2d42; text-align:center; margin-bottom:20px; }
+        
+        .btn { 
+            background:#c9a96e; 
+            color:#1e2d40; 
+            padding:16px; 
+            border:none; 
+            border-radius:6px; 
+            font-size:1.08rem; 
+            font-weight:600; 
+            width:100%; 
+            margin-top:25px; 
+            cursor:pointer; 
+            transition: all 0.4s;
+        }
+        .btn:hover { background:#e8d5b0; }
+        
+        .results { 
+            display:none; 
+            margin-top:30px; 
+            padding:35px 25px; 
+            background:#f0e9d8; 
+            border-radius:10px; 
+            text-align:center; 
+            border: 1px solid #c9a96e;
+        }
+        .result-big { 
+            font-size:2.6rem; 
+            font-weight:700; 
+            color:#1a2d42; 
+            margin:15px 0; 
+        }
+        
+        input[type="text"], input[type="tel"], input[type="email"] {
+            width:100%; padding:14px; margin-bottom:16px; border:1px solid #c9a96e; border-radius:6px; font-size:1rem;
+        }
+        
+        .success { 
+            background:#3d7a5c !important; 
+            color:white !important; 
+            font-weight:500;
+        }
+        
+        @media (max-width:900px) {
+            .hero { grid-template-columns:1fr; }
+            h1 { font-size: 2.1rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="hero">
+    <div class="hero-left">
+        <div class="tag">RENNES • DEPUIS 2003 • 2000+ DOSSIERS FINANCÉS</div>
+        <h1>Combien pouvez-vous <em>vraiment</em> emprunter en 2026 ?</h1>
+        <p style="font-size:1.15rem; opacity:0.95;">Simulation réaliste en 30 secondes.<br>Jean-Philippe vous rappelle sous 24h.</p>
+    </div>
+
+    <div class="hero-right">
+        <h2 style="margin-bottom:20px; color:#1a2d42;">Votre simulation gratuite</h2>
+
+        <input type="text" id="nom" placeholder="Prénom et Nom" required>
+        <input type="tel" id="tel" placeholder="Téléphone (06 XX XX XX XX)" required>
+        <input type="email" id="email" placeholder="Votre email" required>
+
+        <label>Revenus nets mensuels</label>
+        <input type="range" id="revenus" min="1500" max="12000" step="100" value="4500" oninput="updateValue('revenusValue', this.value)">
+        <div class="value" id="revenusValue">4 500 €</div>
+
+        <label>Charges mensuelles existantes</label>
+        <input type="range" id="charges" min="0" max="3000" step="50" value="0" oninput="updateValue('chargesValue', this.value)">
+        <div class="value" id="chargesValue">0 €</div>
+
+        <label>Apport personnel</label>
+        <input type="range" id="apport" min="0" max="200000" step="5000" value="30000" oninput="updateValue('apportValue', this.value)">
+        <div class="value" id="apportValue">30 000 €</div>
+
+        <button class="btn" onclick="calculer()">Voir ma capacité d'emprunt</button>
+
+        <div id="results" class="results">
+            <p style="font-size:1.1rem; margin-bottom:15px; color:#2c4663;">Votre capacité estimée</p>
+            <div id="capital" class="result-big">— €</div>
+            <button id="etudeBtn" class="btn" onclick="envoyerEtude()">Demander mon étude personnalisée</button>
+        </div>
+    </div>
+</div>
+
+<script>
+function updateValue(id, value) {
+    document.getElementById(id).textContent = parseInt(value).toLocaleString('fr-FR') + " €";
+}
+
+function calculer() {
+    const revenus = parseFloat(document.getElementById('revenus').value);
+    const charges = parseFloat(document.getElementById('charges').value);
+    
+    const mensualiteMax = (revenus * 0.35) - charges;
+    
+    if (mensualiteMax <= 0) {
+        alert("Vos charges dépassent le seuil d'endettement. Contactez Jean-Philippe directement.");
+        return;
+    }
+
+    const tauxMensuel = 0.034 / 12;
+    const dureeMois = 240;
+    const capital = mensualiteMax * (1 - Math.pow(1 + tauxMensuel, -dureeMois)) / tauxMensuel;
+
+    document.getElementById('capital').textContent = Math.round(capital).toLocaleString('fr-FR') + " €";
+    document.getElementById('results').style.display = "block";
+}
+
+async function envoyerEtude() {
+    const nom = document.getElementById('nom').value.trim();
+    const tel = document.getElementById('tel').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const revenus = document.getElementById('revenus').value;
+    const charges = document.getElementById('charges').value;
+    const apport = document.getElementById('apport').value;
+    const capital = document.getElementById('capital').textContent;
+
+    if (!nom || !tel || !email) {
+        alert("Merci de remplir vos coordonnées.");
+        return;
+    }
+
+    const btn = document.getElementById('etudeBtn');
+    btn.textContent = "Envoi en cours...";
+    btn.disabled = true;
+
+    try {
+        const res = await fetch('https://formspree.io/f/mvzdoeyb', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify({
+                nom: nom,
+                telephone: tel,
+                email: email,
+                revenus: revenus + " €/mois",
+                charges: charges + " €/mois",
+                apport: apport + " €",
+                capacite_emprunt: capital,
+                source: "Simulateur 2026",
+                _subject: "Nouvelle demande étude - " + nom
+            })
+        });
+
+        if (res.ok) {
+            btn.classList.add('success');
+            btn.innerHTML = "Jean-Philippe a bien pris en compte votre demande.<br>Il vous recontacte dans les meilleurs délais.";
+            btn.style.whiteSpace = "pre-line";
+            btn.disabled = true;
+        } else {
+            throw new Error();
+        }
+    } catch(e) {
+        alert("Une erreur est survenue. Appelez Jean-Philippe au 06 60 14 61 88.");
+        btn.textContent = "Demander mon étude personnalisée";
+        btn.disabled = false;
+    }
+}
+</script>
+
+</body>
+</html>
